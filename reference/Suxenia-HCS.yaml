@@ -1,0 +1,1202 @@
+openapi: 3.1.0
+info:
+  title: Suxenia-HCS
+  version: '1.0'
+  description: |
+    API to interact with a fundamental idea to optimise health care by building the core realiable infrastructures for rapid growth of the ecosystem.
+  contact:
+    name: Suxenia Inc.
+    url: www.suxenia.com
+    email: abiodunoyegoke@outlook.com
+  license:
+    name: AGPL
+    identifier: AGPL-3.0-only
+  summary: Health Care System
+servers:
+  - url: 'http://localhost:3000'
+    description: Development
+paths:
+  '/users/{userId}':
+    parameters:
+      - schema:
+          type: integer
+        name: userId
+        in: path
+        required: true
+        description: Id of an existing user.
+    get:
+      summary: Get User Info by User ID
+      tags: []
+      responses:
+        '200':
+          description: User Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+              examples:
+                Get User Alice Smith:
+                  value:
+                    id: 142
+                    firstName: Alice
+                    lastName: Smith
+                    email: alice.smith@gmail.com
+                    dateOfBirth: '1997-10-31'
+                    emailVerified: true
+                    signUpDate: '2019-08-24'
+        '404':
+          description: User Not Found
+      operationId: get-users-userId
+      description: Retrieve the information of the user with the matching user ID.
+    patch:
+      summary: Update User Information
+      operationId: patch-users-userId
+      responses:
+        '200':
+          description: User Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+              examples:
+                Updated User Rebecca Baker:
+                  value:
+                    id: 13
+                    firstName: Rebecca
+                    lastName: Baker
+                    email: rebecca@gmail.com
+                    dateOfBirth: '1985-10-02'
+                    emailVerified: false
+                    createDate: '2019-08-24'
+        '404':
+          description: User Not Found
+        '409':
+          description: Email Already Taken
+      description: Update the information of an existing user.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                email:
+                  type: string
+                  description: 'If a new email is given, the user''s email verified property will be set to false.'
+                dateOfBirth:
+                  type: string
+            examples:
+              Update First Name:
+                value:
+                  firstName: Rebecca
+              Update Email:
+                value:
+                  email: rebecca@gmail.com
+              Update Last Name & Date of Birth:
+                value:
+                  lastName: Baker
+                  dateOfBirth: '1985-10-02'
+        description: Patch user properties to update.
+  /user:
+    post:
+      summary: Create New User
+      operationId: post-user
+      responses:
+        '200':
+          description: User Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+              examples:
+                New User Bob Fellow:
+                  value:
+                    id: 12
+                    firstName: Bob
+                    lastName: Fellow
+                    email: bob.fellow@gmail.com
+                    dateOfBirth: '1996-08-24'
+                    emailVerified: false
+                    createDate: '2020-11-18'
+        '400':
+          description: Missing Required Information
+        '409':
+          description: Email Already Taken
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                email:
+                  type: string
+                dateOfBirth:
+                  type: string
+                  format: date
+              required:
+                - firstName
+                - lastName
+                - email
+                - dateOfBirth
+            examples:
+              Create User Bob Fellow:
+                value:
+                  firstName: Bob
+                  lastName: Fellow
+                  email: bob.fellow@gmail.com
+                  dateOfBirth: '1996-08-24'
+        description: Post the necessary fields for the API to create a new user.
+      description: Create a new user.
+  /api/v1/authentication/signup:
+    post:
+      summary: Admin Signup
+      operationId: post-api-v1-authentication-signup
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorizedProfile'
+              examples:
+                'Success ':
+                  value:
+                    data:
+                      email: tayoadekunle@suxenia.com
+                      fullName: Tayo Adekunle
+                      id: 16a6ec75c43a183780f82fb2
+                      permissions: []
+                      role: USER
+                      token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRheW9hZGVrdW5sZUBzdXhlbmlhLmNvbSIsImZ1bGxOYW1lIjoiVGF5byBBZGVrdW5sZSIsImlkIjoiMTZhNmVjNzVjNDNhMTgzNzgwZjgyZmIyIiwicGVybWlzc2lvbnMiOltdLCJyb2xlIjoiVVNFUiIsImlhdCI6MTYyNDY1NDUxNiwiZXhwIjoxNjMzMjk0NTE2fQ.Bp8_PPRv1j_sHRgRbNTicf-aIgux1hRv1Ax8ZCB7IVc
+                    statusCode: 200
+        '409':
+          description: Trying to create a new authorization profile with a previously used e-mail address will result in a 409 conflict response from the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiException'
+              examples:
+                Conflict:
+                  value:
+                    statusCode: 409
+                    message: 'tayoadekunle@suxenia.com credentials already exist, please try logging or reset password.'
+      security: []
+      description: 'Creates a user profile for an insitution, which can create a new institution or join an existing instituion'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: ''
+              type: object
+              x-examples:
+                example-1:
+                  email: tayoadekunle@suxenia.com
+                  password: '&#.zuxenia'
+                  firstName: Tayo
+                  lastName: Adekunle
+              properties:
+                email:
+                  type: string
+                  minLength: 1
+                  description: ''
+                  format: email
+                password:
+                  type: string
+                  format: password
+                  minLength: 8
+                firstName:
+                  type: string
+                  minLength: 1
+                  description: First Name for the new profile.
+                lastName:
+                  type: string
+                  minLength: 1
+                  description: Surname for the new profile.
+              required:
+                - email
+                - password
+                - firstName
+                - lastName
+            examples:
+              signup-request:
+                value:
+                  email: tayoadekunle@suxenia.com
+                  password: '&#.zuxenia'
+                  firstName: Tayo
+                  lastName: Adekunle
+        description: ''
+      parameters:
+        - $ref: '#/components/parameters/Content-Type'
+      tags:
+        - Authentication
+        - signup
+        - POST
+  /api/v1/authentication/login:
+    post:
+      summary: Profile Login
+      operationId: post-api-v1-authentication-login
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorizedProfile'
+              examples:
+                Success:
+                  value:
+                    data:
+                      email: tayoadekunle@suxenia.com
+                      fullName: Tayo Adekunle
+                      id: 16a6ec75c43a183780f82fb2
+                      permissions: []
+                      role: USER
+                      token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRheW9hZGVrdW5sZUBzdXhlbmlhLmNvbSIsImZ1bGxOYW1lIjoiVGF5byBBZGVrdW5sZSIsImlkIjoiMTZhNmVjNzVjNDNhMTgzNzgwZjgyZmIyIiwicGVybWlzc2lvbnMiOltdLCJyb2xlIjoiVVNFUiIsImlhdCI6MTYyNDY1OTM2MywiZXhwIjoxNjMzMjk5MzYzfQ.Kt6aqDQ5pBIt1pV3faLAC8IqePyAF4vJ2K1IMm_v7L8
+                    statusCode: 200
+        '401':
+          description: Unathorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiException'
+              examples:
+                Invalid Password:
+                  value:
+                    statusCode: 401
+                    message: 'Invalid password provided, please retry password or reset password.'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiException'
+              examples:
+                Not Found:
+                  value:
+                    statusCode: 404
+                    message: 'Login credentials does not exist, try signing up.'
+      description: Login via user credentials to retrieve a valid jwt token and authorization profile.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: ''
+              type: object
+              x-examples:
+                example-1:
+                  email: tayoadekunle@suxenia.com
+                  password: '&#.zuxenia'
+              properties:
+                email:
+                  type: string
+                  minLength: 1
+                  description: Registered Email address.
+                  format: email
+                password:
+                  type: string
+                  minLength: 1
+                  description: Account attached password.
+                  format: password
+              required:
+                - email
+                - password
+            examples:
+              Login Request:
+                value:
+                  email: user@example.com
+                  password: pa$$word
+        description: ''
+      parameters:
+        - $ref: '#/components/parameters/Content-Type'
+      tags:
+        - Authentication
+        - Login
+        - POST
+  '/api/v1/authentication/profile/{profileId}':
+    get:
+      summary: Authorized Profile Information.
+      tags:
+        - Authentication
+        - Profile
+        - GET
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorizedProfile'
+              examples:
+                Success:
+                  value:
+                    data:
+                      email: tayoadekunle@suxenia.com
+                      fullName: Tayo Adekunle
+                      id: 16a6ec75c43a183780f82fb2
+                      permissions: []
+                      role: USER
+                    statusCode: 200
+        '401':
+          description: An attempt to retrieve any profileId not belong to the organization will result in a 401 unauthorized response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiException'
+              examples:
+                Unauthorized:
+                  value:
+                    statusCode: 401
+                    message: Authorization is required to access this resource.
+                    error: Unauthorized
+      operationId: get-api-v1-authentication-profile
+      description: 'Retrieves the authorization profile of the user by Id, If the profile Id is missing it defaults to the currently signed up with the profile with the auth token.'
+      parameters:
+        - $ref: '#/components/parameters/Content-Type'
+        - $ref: '#/components/parameters/Authorization'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+        description: ''
+    parameters:
+      - schema:
+          type: string
+        name: profileId
+        in: path
+        description: Profile Id for a user.
+        required: true
+  /api/v1/authentication/users:
+    get:
+      summary: Your GET endpoint
+      tags:
+        - Authentication
+        - Users
+        - GET
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiException'
+              examples:
+                Organization profile missing.:
+                  value:
+                    statusCode: 401
+                    message: 'UnAuthorized Access, user does not belong to an organization'
+      operationId: get-api-v1-authentication-users
+      parameters:
+        - $ref: '#/components/parameters/Content-Type'
+      description: This endpoint returns a paginated list of users belonging to the same organization as the user.
+  /api/v1/institutions:
+    get:
+      summary: Your GET endpoint
+      tags:
+        - Institution
+        - Institutions
+        - GET
+      responses: {}
+      operationId: get-api-v1-institutions
+      x-internal: false
+      description: ''
+      parameters:
+        - $ref: '#/components/parameters/Content-Type'
+        - $ref: '#/components/parameters/Authorization'
+    post:
+      summary: Create a new institution
+      operationId: post-api-v1-institutions
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Institution'
+              examples:
+                Aggregator Success:
+                  value:
+                    data:
+                      id: 2a1b091c8ed91fb62f064550
+                      name: Suxenia Inc.
+                      phoneNo: '08149464288'
+                      email: staging@suxenia.com
+                      services:
+                        - AGGREGATION
+                      classification: AGGREGATOR
+                      setting: PRIVATE
+                      website: www.suxenia.com
+                      town: Ibadan
+                      address: 'aloba, estate'
+                      lga: Ibadan
+                      state: OYO
+                      country: NIGERIA
+                      apiKey: MmExYjA5MWM4ZWQ5MWZiNjJmMDY0NTUwOjJhMWIwOTFjOGVkOTFmYjYyZjA2NDU1MA==
+                      aggregatorId: 2a1b091c8ed91fb62f064550
+                      createdBy: Tayo Adekunle
+                      lastModifiedBy: Tayo Adekunle
+                    statusCode: 200
+                Non Aggregator Success:
+                  value:
+                    data:
+                      id: f6bff84e74de9ee537ee6697
+                      name: Health Life Clinic
+                      phoneNo: '08133398431'
+                      email: staging@healthlife.com
+                      services:
+                        - CLINIC
+                      classification: PRIMARY
+                      setting: PRIVATE
+                      website: ''
+                      town: IKEJA
+                      address: alalubosa
+                      lga: IKEJA
+                      state: LAGOS
+                      country: NIGERIA
+                      apiKey: MmExYjA5MWM4ZWQ5MWZiNjJmMDY0NTUwOmY2YmZmODRlNzRkZTllZTUzN2VlNjY5Nw==
+                      aggregatorId: 2a1b091c8ed91fb62f064550
+                      createdBy: Tayo Adekunle
+                      lastModifiedBy: Tayo Adekunle
+                    statusCode: 200
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiValidationException'
+              examples:
+                Bad Request:
+                  value:
+                    message: 'Please incorrect fields was passed, please check and try again'
+                    fields:
+                      - property: name
+                        error: name must be a string
+                      - property: phoneNo
+                        error: phoneNo must be a valid phone number
+                      - property: email
+                        error: email must be an email
+                      - property: services
+                        error: services must be an array
+                      - property: classification
+                        error: classification must be a valid enum value
+                      - property: setting
+                        error: setting must be a valid enum value
+                      - property: address
+                        error: address must be a string
+                      - property: town
+                        error: town must be a string
+                      - property: lga
+                        error: lga must be a string
+                      - property: state
+                        error: state must be a string
+                      - property: country
+                        error: country must be a string
+                    statusCode: 400
+                Incomplete Profile:
+                  value:
+                    statusCode: 400
+                    message: 'Bad request, please complete your aggregation profile before creating non-aggregating institutions'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiException'
+              examples:
+                Duplicate Aggregation Profile:
+                  value:
+                    statusCode: 409
+                    message: 'Aggregation profile for institution, already exist'
+      description: 'This endpoint creates a new institution profile on the HCS platform. '
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: ''
+              type: object
+              x-examples:
+                example-1:
+                  name: Suxenia Inc.
+                  phoneNo: '08149464288'
+                  email: staging@suxenia.com
+                  services:
+                    - AGGREGATION
+                  classification: AGGREGATOR
+                  setting: PRIVATE
+                  website: www.suxenia.com
+                  address: 'aloba, estate'
+                  town: Ibadan
+                  lga: Ibadan
+                  state: OYO
+                  country: NIGERIA
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  description: Insitution Name.
+                phoneNo:
+                  type: string
+                  minLength: 1
+                  description: Mobile contact information for the organization.
+                email:
+                  type: string
+                  minLength: 1
+                  description: Email address for the organization.
+                services:
+                  type: array
+                  description: Array of services selected  for the organization.
+                  items:
+                    type: string
+                classification:
+                  type: string
+                  minLength: 1
+                  description: Classification for the organization.
+                  enum:
+                    - PRIMARY
+                    - SECONDARY
+                    - TERTIARY
+                    - AGGREGATOR
+                setting:
+                  type: string
+                  minLength: 1
+                  enum:
+                    - PRIVATE
+                    - PUBLIC
+                website:
+                  type: string
+                  minLength: 1
+                  description: (optional) Website URL for the organization.
+                address:
+                  type: string
+                  minLength: 1
+                  description: Address of the organization in the street of the town or city located.
+                town:
+                  type: string
+                  minLength: 1
+                  description: Located City or Town name.
+                lga:
+                  type: string
+                  minLength: 1
+                  description: LGA which the insititution is located.
+                state:
+                  type: string
+                  minLength: 1
+                  description: State which the organization is located.
+                country:
+                  type: string
+                  minLength: 1
+                  description: Country of location for the organization.
+              required:
+                - name
+                - phoneNo
+                - email
+                - services
+                - classification
+                - setting
+                - address
+                - town
+                - lga
+                - state
+                - country
+            examples:
+              Create Aggregator Request:
+                value:
+                  name: Suxenia Inc.
+                  phoneNo: '08149464288'
+                  email: staging@suxenia.com
+                  services:
+                    - AGGREGATION
+                  classification: AGGREGATOR
+                  setting: PRIVATE
+                  website: www.suxenia.com
+                  address: 'aloba, estate'
+                  town: Ibadan
+                  lga: Ibadan
+                  state: OYO
+                  country: NIGERIA
+              Non Aggregator Request:
+                value:
+                  name: Health Life Clinic
+                  phoneNo: '08133398431'
+                  email: staging@healthlife.com
+                  services:
+                    - CLINIC
+                  classification: PRIMARY
+                  setting: PRIVATE
+                  address: alalubosa
+                  town: IKEJA
+                  lga: IKEJA
+                  state: LAGOS
+                  country: NIGERIA
+        description: 'This endpoint creates a new institution, for a new profile which aims to be a super aggregator, it should create it''s details with the `AGGREGATOR` classification. A verified aggregator can continue to use this endpoint to create new non-aggregating institutions. After creating an aggregator profile, the user should relogin to get a new and updated token containing the organizationId. Please also note: `APIKEY` is only displayed here once and should be stored for futher usage.'
+      tags:
+        - Create
+        - Institution
+        - POST
+      parameters:
+        - $ref: '#/components/parameters/Content-Type'
+        - $ref: '#/components/parameters/Authorization'
+    put:
+      summary: Update Institution Information
+      operationId: put-api-v1-institutions
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Institution'
+              examples:
+                Success:
+                  value:
+                    data:
+                      id: 2a1b091c8ed91fb62f064550
+                      name: Suxenia Inc.
+                      phoneNo: '08149464288'
+                      email: staging@suxenia.com
+                      services:
+                        - AGGREGATION
+                      classification: AGGREGATOR
+                      setting: PRIVATE
+                      website: www.suxenia.com
+                      town: Ibadan
+                      address: 'moniya, train station road'
+                      lga: Ibadan
+                      state: OYO
+                      country: NIGERIA
+                      apiKey: ''
+                      aggregatorId: 2a1b091c8ed91fb62f064550
+                      createdBy: Tayo Adekunle
+                      lastModifiedBy: Tayo Adekunle
+                    statusCode: 200
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiException'
+              examples:
+                Bad Request:
+                  value:
+                    statusCode: 400
+                    message: 'Please provide a valid setting type value from , PRIVATE, PUBLIC'
+      description: Update an exiting insitution information.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: ''
+              type: object
+              x-examples:
+                example-1:
+                  name: Suxenia Inc.
+                  phoneNo: '08149464288'
+                  email: staging@suxenia.com
+                  services:
+                    - AGGREGATION
+                  classification: AGGREGATOR
+                  setting: PRIVATE
+                  website: www.suxenia.com
+                  address: 'aloba, estate'
+                  town: Ibadan
+                  lga: Ibadan
+                  state: OYO
+                  country: NIGERIA
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                phoneNo:
+                  type: string
+                  minLength: 1
+                email:
+                  type: string
+                  minLength: 1
+                services:
+                  type: array
+                  items:
+                    type: string
+                classification:
+                  type: string
+                  minLength: 1
+                  enum:
+                    - PRIMARY
+                    - SECONDARY
+                    - TERTIARY
+                    - AGGREGATOR
+                setting:
+                  type: string
+                  minLength: 1
+                  enum:
+                    - DEPARTMENT
+                    - WARD
+                website:
+                  type: string
+                  minLength: 1
+                address:
+                  type: string
+                  minLength: 1
+                town:
+                  type: string
+                  minLength: 1
+                lga:
+                  type: string
+                  minLength: 1
+                state:
+                  type: string
+                  minLength: 1
+                country:
+                  type: string
+                  minLength: 1
+            examples:
+              Update address:
+                value:
+                  address: 'moniya, train station road'
+        description: 'Updating an institution requires the insitution unique ID to be part of the payload, if it''s missing it will be defaulted to the token user organization ID. Any subset of the fields from the payload is a valid update payload to the server.'
+      parameters:
+        - $ref: '#/components/parameters/Content-Type'
+        - $ref: '#/components/parameters/Authorization'
+      tags:
+        - Institution
+        - Update
+        - PUT
+  /api/v1/institutions/mine:
+    get:
+      summary: Retrieve My Organization
+      tags:
+        - Institution
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Institution'
+              examples:
+                Success:
+                  value:
+                    data:
+                      id: 2a1b091c8ed91fb62f064550
+                      name: Suxenia Inc.
+                      phoneNo: '08149464288'
+                      email: staging@suxenia.com
+                      services:
+                        - AGGREGATION
+                      classification: AGGREGATOR
+                      setting: PRIVATE
+                      website: www.suxenia.com
+                      town: Ibadan
+                      address: 'moniya, train station road'
+                      lga: Ibadan
+                      state: OYO
+                      country: NIGERIA
+                      apiKey: ''
+                      aggregatorId: 2a1b091c8ed91fb62f064550
+                      createdBy: Tayo Adekunle
+                      lastModifiedBy: Tayo Adekunle
+                    statusCode: 200
+      operationId: get-api-v1-institutions-mine
+      description: 'Retrieve the institution profile of the user with the token. Note: that Identity header always overides the organization to the identity APIKey organization, so the organization will always be the identity organization if present and valid.'
+      parameters:
+        - $ref: '#/components/parameters/Content-Type'
+        - $ref: '#/components/parameters/Authorization'
+  '/api/v1/institutions/{institutionId}':
+    parameters:
+      - schema:
+          type: string
+          example: f6bff84e74de9ee537ee6697
+        name: institutionId
+        in: path
+        required: true
+    get:
+      summary: Retrieve Organization By Id
+      tags:
+        - Institution
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Institution'
+              examples:
+                Success:
+                  value:
+                    data:
+                      id: f6bff84e74de9ee537ee6697
+                      name: Health Life Clinic
+                      phoneNo: '08133398431'
+                      email: staging@healthlife.com
+                      services:
+                        - CLINIC
+                      classification: PRIMARY
+                      setting: PRIVATE
+                      website: ''
+                      town: IKEJA
+                      address: alalubosa
+                      lga: IKEJA
+                      state: LAGOS
+                      country: NIGERIA
+                      apiKey: ''
+                      aggregatorId: 2a1b091c8ed91fb62f064550
+                      createdBy: Tayo Adekunle
+                      lastModifiedBy: Tayo Adekunle
+                    statusCode: 200
+      operationId: get-api-v1-institutions-institutionId
+      description: Retrieve the details of another organization using the organization Id.
+      parameters:
+        - $ref: '#/components/parameters/Content-Type'
+        - $ref: '#/components/parameters/Authorization'
+components:
+  schemas:
+    User:
+      title: User
+      type: object
+      description: ''
+      examples:
+        - id: 142
+          firstName: Alice
+          lastName: Smith
+          email: alice.smith@gmail.com
+          dateOfBirth: '1997-10-31'
+          emailVerified: true
+          signUpDate: '2019-08-24'
+      properties:
+        id:
+          type: integer
+          description: Unique identifier for the given user.
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+          format: email
+        dateOfBirth:
+          type: string
+          format: date
+          example: '1997-10-31'
+        emailVerified:
+          type: boolean
+          description: Set to true if the user's email has been verified.
+        createDate:
+          type: string
+          format: date
+          description: The date that the user was created.
+      required:
+        - id
+        - firstName
+        - lastName
+        - email
+        - emailVerified
+    AuthorizedProfile:
+      description: Authorized Profile Information used across various services across suxenia platform.
+      type: object
+      x-examples:
+        example-1:
+          data:
+            email: tayoadekunle@suxenia.com
+            fullName: Tayo Adekunle
+            id: 16a6ec75c43a183780f82fb2
+            permissions: []
+            role: USER
+            token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRheW9hZGVrdW5sZUBzdXhlbmlhLmNvbSIsImZ1bGxOYW1lIjoiVGF5byBBZGVrdW5sZSIsImlkIjoiMTZhNmVjNzVjNDNhMTgzNzgwZjgyZmIyIiwicGVybWlzc2lvbnMiOltdLCJyb2xlIjoiVVNFUiIsImlhdCI6MTYyNDY1NDUxNiwiZXhwIjoxNjMzMjk0NTE2fQ.Bp8_PPRv1j_sHRgRbNTicf-aIgux1hRv1Ax8ZCB7IVc
+          status: 200
+      examples: []
+      x-internal: false
+      properties:
+        data:
+          type: object
+          required:
+            - email
+            - fullName
+            - id
+            - permissions
+            - role
+          properties:
+            email:
+              type: string
+              minLength: 1
+              description: Email Address for authorized profile.
+              format: email
+            fullName:
+              type: string
+              minLength: 1
+              description: FullName for the authorized profile.
+            id:
+              type: string
+              minLength: 1
+              description: Unique Id for the authorized profile.
+            permissions:
+              type: array
+              description: permissions allowed for the authorized profile.
+              items:
+                type: string
+            role:
+              type: string
+              minLength: 1
+              description: Profile Role level.
+              enum:
+                - ADMIN
+                - SUPER_ADMIN
+                - USER
+                - ORG_ADMIN
+              default: USER
+            token:
+              type: string
+              minLength: 1
+              description: Bearer token for login for the signed up profile.
+        statusCode:
+          type: number
+      required:
+        - data
+        - statusCode
+    ApiException:
+      description: Base Format for all API Errors.
+      type: object
+      x-examples:
+        example-1:
+          statusCode: 401
+          message: Authorization is required to access this resource.
+          error: Unauthorized
+      properties:
+        statusCode:
+          type: number
+        message:
+          type: string
+          minLength: 1
+        error:
+          type: string
+          minLength: 1
+      required:
+        - statusCode
+        - message
+    Institution:
+      description: Institution model structure.
+      type: object
+      x-examples:
+        example-1:
+          data:
+            id: 170e99d57e5dc0feddb8fca4
+            name: Suxenia Inc.
+            phoneNo: '08149464288'
+            email: staging@suxenia.com
+            services:
+              - AGGREGATION
+            classification: AGGREGATOR
+            setting: PRIVATE
+            website: www.suxenia.com
+            town: Ibadan
+            address: 'aloba, estate'
+            lga: Ibadan
+            state: OYO
+            country: NIGERIA
+            apiKey: MTcwZTk5ZDU3ZTVkYzBmZWRkYjhmY2E0OjE3MGU5OWQ1N2U1ZGMwZmVkZGI4ZmNhNA==
+            aggregatorId: 170e99d57e5dc0feddb8fca4
+            createdBy: Tayo Adekunle
+            lastModifiedBy: Tayo Adekunle
+          statusCode: 200
+      title: Insitution
+      properties:
+        data:
+          type: object
+          required:
+            - id
+            - name
+            - phoneNo
+            - email
+            - services
+            - classification
+            - setting
+            - town
+            - address
+            - lga
+            - state
+            - country
+            - aggregatorId
+            - createdBy
+            - lastModifiedBy
+          properties:
+            id:
+              type: string
+              minLength: 1
+              description: Institution unique identification.
+              readOnly: true
+            name:
+              type: string
+              minLength: 1
+              description: Name of the institution.
+            phoneNo:
+              type: string
+              minLength: 1
+              description: Mobile contact information for the organization.
+            email:
+              type: string
+              minLength: 1
+              description: Organization Email address.
+            services:
+              type: array
+              description: Array of services selected  by the organization.
+              items:
+                type: string
+            classification:
+              type: string
+              minLength: 1
+              description: Classification of the organization.
+              enum:
+                - PRIMARY
+                - SECONDARY
+                - TERTIARY
+                - AGGREGATOR
+            setting:
+              type: string
+              minLength: 1
+              description: Settings for the organization.
+              enum:
+                - PRIVATE
+                - PUBLIC
+            website:
+              type: string
+              minLength: 0
+              description: (Optional) website or URL for the organization.
+            town:
+              type: string
+              minLength: 1
+              description: City or Town located.
+            address:
+              type: string
+              minLength: 1
+              description: Address information for the organization.
+            lga:
+              type: string
+              minLength: 1
+              description: Local government location for the organization.
+            state:
+              type: string
+              minLength: 1
+              description: State which the organization is located.
+            country:
+              type: string
+              minLength: 1
+              description: Country which the organization is located.
+            apiKey:
+              type: string
+              minLength: 0
+              description: Unique APIKEY for the organization
+              readOnly: true
+            aggregatorId:
+              type: string
+              minLength: 1
+              description: Aggregator Id for the organization
+              readOnly: true
+            createdBy:
+              type: string
+              minLength: 1
+              description: Audit Information
+              readOnly: true
+            lastModifiedBy:
+              type: string
+              minLength: 1
+              description: Audit information
+              readOnly: true
+        statusCode:
+          type: number
+      required:
+        - data
+        - statusCode
+    ApiValidationException:
+      description: ''
+      type: object
+      x-examples:
+        example-1:
+          message: 'Please incorrect fields was passed, please check and try again'
+          fields:
+            - property: name
+              error: name must be a string
+            - property: phoneNo
+              error: phoneNo must be a valid phone number
+            - property: email
+              error: email must be an email
+            - property: services
+              error: services must be an array
+            - property: classification
+              error: classification must be a valid enum value
+            - property: setting
+              error: setting must be a valid enum value
+            - property: address
+              error: address must be a string
+            - property: town
+              error: town must be a string
+            - property: lga
+              error: lga must be a string
+            - property: state
+              error: state must be a string
+            - property: country
+              error: country must be a string
+          statusCode: 400
+      properties:
+        message:
+          type: string
+          minLength: 1
+        fields:
+          type: array
+          uniqueItems: true
+          minItems: 1
+          items:
+            type: object
+            description: name of the field with the error.
+            properties:
+              property:
+                type: string
+                minLength: 1
+              error:
+                type: string
+                minLength: 1
+                description: error for the field name or property on the validate request
+            required:
+              - property
+              - error
+        statusCode:
+          type: number
+      required:
+        - message
+        - statusCode
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+    APIKey:
+      type: http
+      scheme: basic
+  parameters:
+    Content-Type:
+      name: Content-Type
+      in: header
+      required: true
+      schema:
+        type: string
+        default: application/json
+      description: use "application/json" in your request.
+    Authorization:
+      name: Authorization
+      in: header
+      required: true
+      schema:
+        type: string
+        default: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRheW9hZGVrdW5sZUBzdXhlbmlhLmNvbSIsImZ1bGxOYW1lIjoiVGF5byBBZGVrdW5sZSIsImlkIjoiMTZhNmVjNzVjNDNhMTgzNzgwZjgyZmIyIiwib3JnSWQiOiIyYTFiMDkxYzhlZDkxZmI2MmYwNjQ1NTAiLCJwZXJtaXNzaW9ucyI6W10sInJvbGUiOiJPUkdfQURNSU4iLCJpYXQiOjE2MjQ3MDAwOTYsImV4cCI6MTYzMzM0MDA5Nn0.M1E7uBt0YJYs4Hi0GkEipCZJXVpvpETv3006Vv2m1dU
+        format: none
+      description: Bearer authentication token
+security:
+  - 'Bearer ': []
+tags:
+  - name: HCS
