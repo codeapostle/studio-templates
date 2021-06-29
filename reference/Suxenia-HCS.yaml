@@ -857,6 +857,289 @@ paths:
       parameters:
         - $ref: '#/components/parameters/Content-Type'
         - $ref: '#/components/parameters/Authorization'
+  /api/v1/staffs:
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses: {}
+      operationId: get-api-v1-staffs
+    post:
+      summary: Create Staff
+      operationId: post-api-v1-staffs
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Staff'
+              examples:
+                Success:
+                  value:
+                    data:
+                      id: 953e91d9d22ba4ad0699d8b4
+                      profileId: 953e91d9d22ba4ad0699d8b4
+                      orgId: 2a1b091c8ed91fb62f064550
+                      firstName: Adeola
+                      lastName: Omotola
+                      gender: FEMALE
+                      email: adeolaomotola@suxenia.com
+                      phoneNo: '08133398431'
+                      profession: DOCTOR
+                      departments: []
+                      createdBy: Tayo Adekunle
+                      lastModifiedBy: Tayo Adekunle
+                    statusCode: 201
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiException'
+              examples:
+                InvalidParameter:
+                  value:
+                    statusCode: 400
+                    message: 'InvalidParameter: FirstName and LastName cannot be null or undefined'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiException'
+              examples:
+                Duplicate Email:
+                  value:
+                    statusCode: 409
+                    message: Staff Profile already exist for organization.
+      description: Create Institution staff. The institution staffsa are meant to be update with relevant institutions.
+      parameters:
+        - $ref: '#/components/parameters/Content-Type'
+        - $ref: '#/components/parameters/Authorization'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: ''
+              type: object
+              x-examples:
+                example-1:
+                  firstName: Adeola
+                  lastName: Omotola
+                  gender: FEMALE
+                  email: adeolaomotola@suxenia.com
+                  phoneNo: '08133398431'
+                  profession: DOCTOR
+              properties:
+                firstName:
+                  type: string
+                  minLength: 1
+                  description: First Name for the staff.
+                lastName:
+                  type: string
+                  minLength: 1
+                  description: Last Name for the staff.
+                gender:
+                  type: string
+                  minLength: 1
+                  description: Gender.
+                  enum:
+                    - MALE
+                    - FEMALE
+                email:
+                  type: string
+                  minLength: 1
+                  description: unique email address for the staff.
+                phoneNo:
+                  type: string
+                  minLength: 1
+                  description: Phone No for the user.
+                profession:
+                  type: string
+                  minLength: 1
+                  description: Profession of the staff.
+              required:
+                - firstName
+                - lastName
+                - gender
+                - email
+                - phoneNo
+                - profession
+            examples:
+              Staff Request:
+                value:
+                  firstName: Adeola
+                  lastName: Omotola
+                  gender: FEMALE
+                  email: adeolaomotola@suxenia.com
+                  phoneNo: '08133398431'
+                  profession: DOCTOR
+        description: 'Please Note: `Email` cannot be changed after been created because it''s an identity information.'
+      tags:
+        - Staffs
+        - POST
+    put:
+      summary: Update Staff Detail.
+      operationId: put-api-v1-staffs
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Staff'
+              examples:
+                Success:
+                  value:
+                    data:
+                      id: 953e91d9d22ba4ad0699d8b4
+                      profileId: 953e91d9d22ba4ad0699d8b4
+                      orgId: 2a1b091c8ed91fb62f064550
+                      firstName: Tolani
+                      lastName: Omotola
+                      gender: FEMALE
+                      email: adeolaomotola@suxenia.com
+                      phoneNo: '08133398431'
+                      profession: DOCTOR
+                      departments: []
+                      createdBy: Tayo Adekunle
+                      lastModifiedBy: Tayo Adekunle
+                    statusCode: 200
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiException'
+              examples:
+                ID Missing:
+                  value:
+                    statusCode: 400
+                    message: 'Invalid Parameter: Staff Profile ID is required for update'
+      description: Update Staff details by unique id.
+      tags:
+        - PUT
+        - Staffs
+      parameters:
+        - $ref: '#/components/parameters/Content-Type'
+        - $ref: '#/components/parameters/Authorization'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: ''
+              type: object
+              x-examples:
+                example-1:
+                  id: 953e91d9d22ba4ad0699d8b4
+                  firstName: Tolani
+                  lastName: Omotola
+                  gender: FEMALE
+                  phoneNo: '08133398431'
+                  profession: DOCTOR
+              properties:
+                id:
+                  type: string
+                  minLength: 1
+                  description: Staff Unique Id
+                firstName:
+                  type: string
+                  minLength: 1
+                  description: Staff's first name.
+                lastName:
+                  type: string
+                  minLength: 1
+                  description: Staff's lastname or surname.
+                gender:
+                  type: string
+                  minLength: 1
+                  description: Gender.
+                  enum:
+                    - MALE
+                    - FEMALE
+                phoneNo:
+                  type: string
+                  minLength: 1
+                  description: Mobile phone number.
+                profession:
+                  type: string
+                  minLength: 1
+                  description: Profession.
+              required:
+                - id
+            examples:
+              Update Request:
+                value:
+                  id: 953e91d9d22ba4ad0699d8b4
+                  firstName: Tolani
+                  lastName: Omotola
+                  gender: FEMALE
+                  phoneNo: '08133398431'
+                  profession: DOCTOR
+        description: 'Please Note: `Email` cannot be update because it''s an identity information.'
+  '/api/v1/staffs/{staffId}':
+    parameters:
+      - schema:
+          type: string
+        name: staffId
+        in: path
+        required: true
+        description: Unique staff Id
+    get:
+      summary: Retrieve Staff By Id.
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Staff'
+              examples:
+                Success:
+                  value:
+                    data:
+                      id: 953e91d9d22ba4ad0699d8b4
+                      profileId: 953e91d9d22ba4ad0699d8b4
+                      orgId: 2a1b091c8ed91fb62f064550
+                      firstName: Tolani
+                      lastName: Omotola
+                      gender: FEMALE
+                      email: adeolaomotola@suxenia.com
+                      phoneNo: '08133398431'
+                      profession: DOCTOR
+                      departments: []
+                      createdBy: Tayo Adekunle
+                      lastModifiedBy: Tayo Adekunle
+                    statusCode: 200
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiException'
+              examples:
+                Invalid ID:
+                  value:
+                    statusCode: 400
+                    message: 'InvalidParameter: ID provided is not valid. '
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiException'
+              examples:
+                Not Found:
+                  value:
+                    statusCode: 404
+                    message: 'Staff with 953e91d9d22ba4ad0699d8b5 not found. '
+                    error: Not Found
+      operationId: get-api-v1-staffs-staffId
+      description: Retrieve a staff by the staff unique Identification.
+      parameters:
+        - $ref: '#/components/parameters/Content-Type'
+        - $ref: '#/components/parameters/Authorization'
 components:
   schemas:
     User:
@@ -1170,6 +1453,100 @@ components:
           type: number
       required:
         - message
+        - statusCode
+    Staff:
+      description: Staff record response.
+      type: object
+      x-examples:
+        example-1:
+          data:
+            id: 953e91d9d22ba4ad0699d8b4
+            profileId: 953e91d9d22ba4ad0699d8b4
+            orgId: 2a1b091c8ed91fb62f064550
+            firstName: Adeola
+            lastName: Omotola
+            gender: FEMALE
+            email: adeolaomotola@suxenia.com
+            phoneNo: '08133398431'
+            profession: DOCTOR
+            departments: []
+            createdBy: Tayo Adekunle
+            lastModifiedBy: Tayo Adekunle
+          statusCode: 201
+      title: Staff
+      properties:
+        data:
+          type: object
+          required:
+            - id
+            - profileId
+            - orgId
+            - firstName
+            - lastName
+            - gender
+            - email
+            - profession
+            - departments
+            - createdBy
+            - lastModifiedBy
+          properties:
+            id:
+              type: string
+              minLength: 1
+              description: Staff Unique ID.
+            profileId:
+              type: string
+              minLength: 1
+              description: Authentication profile ID.
+            orgId:
+              type: string
+              minLength: 1
+              description: Organization Id.
+            firstName:
+              type: string
+              minLength: 1
+              description: Staff First Name.
+            lastName:
+              type: string
+              minLength: 1
+              description: Staff last Name.
+            gender:
+              type: string
+              minLength: 1
+              description: Gender.
+              enum:
+                - MALE
+                - FEMALE
+            email:
+              type: string
+              minLength: 1
+              description: Email address for staff
+            phoneNo:
+              type: string
+              minLength: 1
+              description: Mobile contact number.
+            profession:
+              type: string
+              minLength: 1
+              description: Profession in the organization.
+              example: 'DOCTOR, NURSE e.tc.'
+            departments:
+              type: array
+              description: Departments in the organization.
+              items:
+                type: string
+            createdBy:
+              type: string
+              minLength: 1
+              description: Creator's name.
+            lastModifiedBy:
+              type: string
+              minLength: 1
+              description: Last modifier's name.
+        statusCode:
+          type: number
+      required:
+        - data
         - statusCode
   securitySchemes:
     Bearer:
